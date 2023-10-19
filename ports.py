@@ -2,7 +2,7 @@
 
 import re
 
-regexMatch = "[pP]orts?[ :\"]{1,3}([1-9]\d{1,4}|6[1-5]\d{3})"
+regexMatch = "[pP]orts?[ :\"]{1,3}([1-9]\d{1,4}|6[0-5]\d{3})"
 matcher = re.compile(regexMatch)
 
 with open("file", "r") as file:
