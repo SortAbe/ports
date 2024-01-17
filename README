@@ -11,9 +11,8 @@ Features
 Requirements
 
 	Python 3
-	mysql.connector Python module (for MySQL database functionality)
-	A log file with specific log formats.
+	mysql.connector Python module (feature is disabled).
 
 Usage
 
-	If on linux you can run using the following command: ./portScanner.py. On Windows you can run using the command "python3 -m portScanner".
+	If on linux environment use command: "./portScanner.py". On Windows you can run using the command "python3 -m portScanner".

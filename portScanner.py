@@ -27,8 +27,8 @@ class PortScanner:
 
 	#SSHD message type id: 1
 	def scannerSSHD(self, line):
-		candidatePorts = re.compile(r"\bport (\d+)\b")
-		candidateDate = re.compile(r"^<.+?>([A-Z][a-z]{2} (3[0-1]|[1-2]\d|[1-9]) \d{1,2}:\d{1,2}:\d{1,2}) ")
+		candidatePorts = re.compile(r"\bport (\d+)\b")#Per message port match
+		candidateDate = re.compile(r"^<.+?>([A-Z][a-z]{2} (3[0-1]|[1-2]\d|[1-9]) \d{1,2}:\d{1,2}:\d{1,2}) ")#time match
 		timeStamp = self.getTimeStamp(candidateDate.search(line).group(1), "%b %d %H:%M:%S")
 
 		for found in candidatePorts.findall(line):
@@ -38,8 +38,8 @@ class PortScanner:
 
 	#Microsoft Windows Security Auditing message type id: 2
 	def scannerMWSA(self, line):
-		candidatePorts = re.compile(r"\bPort: (\d+)\b")
-		candidateDate = re.compile(r"^<.+?>([A-Z][a-z]{2} (3[0-1]|[1-2]\d|[1-9]) \d{1,2}:\d{1,2}:\d{1,2}) ")
+		candidatePorts = re.compile(r"\bPort: (\d+)\b")#Per message port match
+		candidateDate = re.compile(r"^<.+?>([A-Z][a-z]{2} (3[0-1]|[1-2]\d|[1-9]) \d{1,2}:\d{1,2}:\d{1,2}) ")#time match
 		timeStamp = self.getTimeStamp(candidateDate.search(line).group(1), "%b %d %H:%M:%S")
 
 		for found in candidatePorts.findall(line):
@@ -49,8 +49,8 @@ class PortScanner:
 
 	#Firewall message type id: 3
 	def scannerFirewall(self, line):
-		candidatePorts = re.compile(r"\b(?:service|s_port):\"(\d+)\"")
-		candidateDate = re.compile(r"^<.+?>\d{1,5} (20\d{2}-\d{2}-\d{2})[A-Za-z](\d{1,2}:\d{1,2}:\d{1,2})[A-Za-z]")
+		candidatePorts = re.compile(r"\b(?:service|s_port):\"(\d+)\"")#Per message port match
+		candidateDate = re.compile(r"^<.+?>\d{1,5} (20\d{2}-\d{2}-\d{2})[A-Za-z](\d{1,2}:\d{1,2}:\d{1,2})[A-Za-z]")#time match
 		timeStamp = self.getTimeStamp(candidateDate.search(line).group(1) + " "\
 			+ candidateDate.search(line).group(2), "%Y-%m-%d %H:%M:%S")
 
@@ -89,8 +89,9 @@ class PortScanner:
 			self.portObjects[id].append(portObject)
 
 	#Load into a database
+	#This is a hypothetical database load. Code is not active, library is not imported and no real database exist.
 	def loadDB(self):
-		connectorObject = mysql.connector.connect(
+		connectorObject = mysql.connector.connect(#This code should not execute, error exist because library import is disabled.
 			host="localhost",
 			user="admin",
 			password="password",
@@ -121,11 +122,12 @@ class PortScanner:
 if __name__ == "__main__":
 	portScanner = PortScanner()
 
+	print("Please provide file location(default is 'file' in current working directory):")
 	while True:
-		print("Please provide file location(default is 'file' in current working directory):")
 		path = input()
 		if len(path) == 0:
 			path = r"file"
+			break
 		if os.path.exists(path):
 			break
 		else:
