@@ -12,52 +12,60 @@ class PortScanner:
 
 	#Match message type. Doing so allows stricter regex on a per message type basis.
 	def messageTypeMatch(self, line):
+		if len(line.strip()) == 0:
+			return
+
 		matchSSHD = re.compile(r"(?i:okc\S+\b) sshd\[\d{1,5}\]: .+$")
 		matchMWSA = re.compile(r"(?i:okc\S+\b) Microsoft.Windows.Security.Auditing\[\d{1,5}\]: .+$")
 		matchFirewall = re.compile(r"(?i:okc\S+\b) FireWall \d{1,5} .+$")
 
 		if re.search(matchSSHD, line):
 			self.scannerSSHD(line)
-		if re.search(matchMWSA, line):
+		elif re.search(matchMWSA, line):
 			self.scannerMWSA(line)
-		if re.search(matchFirewall, line):
+		elif re.search(matchFirewall, line):
 			self.scannerFirewall(line)
+		else:
+			print(f"Log message type unidentified: {line}")
 
 	#Per message type regex port extract.
 
 	#SSHD message type id: 1
 	def scannerSSHD(self, line):
+		id = 1
 		candidatePorts = re.compile(r"\bport (\d+)\b")#Per message port match
-		candidateDate = re.compile(r"^<.+?>([A-Z][a-z]{2} (3[0-1]|[1-2]\d|[1-9]) \d{1,2}:\d{1,2}:\d{1,2}) ")#time match
-		timeStamp = self.getTimeStamp(candidateDate.search(line).group(1), "%b %d %H:%M:%S")
+		candidateTime = re.compile(r"^<.+?>([A-Z][a-z]{2} (3[0-1]|[1-2]\d|[1-9]) \d{1,2}:\d{1,2}:\d{1,2}) ")#time match
+		timeStamp = self.getTimeStamp(candidateTime.search(line).group(1), "%b %d %H:%M:%S")
 
 		for found in candidatePorts.findall(line):
 			if self.isThisAPort(found):
-				self.printOut(1, timeStamp, found)
-				self.addPortObject(1, timeStamp, found, line)
+				self.printOut(id, timeStamp, found)
+				self.addPortObject(id, timeStamp, found, line)
 
 	#Microsoft Windows Security Auditing message type id: 2
 	def scannerMWSA(self, line):
-		candidatePorts = re.compile(r"\bPort: (\d+)\b")#Per message port match
-		candidateDate = re.compile(r"^<.+?>([A-Z][a-z]{2} (3[0-1]|[1-2]\d|[1-9]) \d{1,2}:\d{1,2}:\d{1,2}) ")#time match
-		timeStamp = self.getTimeStamp(candidateDate.search(line).group(1), "%b %d %H:%M:%S")
+		id = 2
+		candidatePorts = re.compile(r"\bClient Port: (\d+)\b")#Per message port match
+		candidateTime = re.compile(r"^<.+?>([A-Z][a-z]{2} (3[0-1]|[1-2]\d|[1-9]) \d{1,2}:\d{1,2}:\d{1,2}) ")#time match
+		timeStamp = self.getTimeStamp(candidateTime.search(line).group(1), "%b %d %H:%M:%S")
 
 		for found in candidatePorts.findall(line):
 			if self.isThisAPort(found):
-				self.printOut(2, timeStamp, found)
-				self.addPortObject(2, timeStamp, found, line)
+				self.printOut(id, timeStamp, found)
+				self.addPortObject(id, timeStamp, found, line)
 
 	#Firewall message type id: 3
 	def scannerFirewall(self, line):
+		id = 3
 		candidatePorts = re.compile(r"\b(?:service|s_port):\"(\d+)\"")#Per message port match
-		candidateDate = re.compile(r"^<.+?>\d{1,5} (20\d{2}-\d{2}-\d{2})[A-Za-z](\d{1,2}:\d{1,2}:\d{1,2})[A-Za-z]")#time match
-		timeStamp = self.getTimeStamp(candidateDate.search(line).group(1) + " "\
-			+ candidateDate.search(line).group(2), "%Y-%m-%d %H:%M:%S")
+		candidateTime = re.compile(r"^<.+?>\d{1,5} (20\d{2}-\d{2}-\d{2})[A-Za-z](\d{1,2}:\d{1,2}:\d{1,2})[A-Za-z]")#time match
+		timeStamp = self.getTimeStamp(candidateTime.search(line).group(1) + " "\
+			+ candidateTime.search(line).group(2), "%Y-%m-%d %H:%M:%S")
 
 		for found in candidatePorts.findall(line):
 			if self.isThisAPort(found):
-				self.printOut(3, timeStamp, found)
-				self.addPortObject(3, timeStamp, found, line)
+				self.printOut(id, timeStamp, found)
+				self.addPortObject(id, timeStamp, found, line)
 
 	#Extract time stamp
 	def getTimeStamp(self, timeStamp, format):
@@ -126,13 +134,12 @@ if __name__ == "__main__":
 	while True:
 		path = input()
 		if len(path) == 0:
-			path = r"file"
+			path = "file"
 			break
-		if os.path.exists(path):
+		if os.path.exists(path.strip()):
 			break
 		else:
 			print("Invalid path, try again(default is 'file' in current working directory):")
-			path = input()
 
 	with open(path, "r") as file:
 		lines = file.readlines()
