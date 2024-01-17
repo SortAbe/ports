@@ -1,0 +1,19 @@
+Overview
+
+	PortScanner is a Python script designed to parse log files, extract information about port activities, and store this data either in a JSON file or a MySQL database.
+
+Features
+
+	Log Parsing: Handles different log formats from SSHD, Microsoft Windows Security Auditing, and Firewalls.
+	Data Extraction: Identifies and extracts port numbers and times stamps from the log entries.
+	Data Storage: Capable of storing the extracted data in a JSON file. It also includes a feature to store data in a MySQL database (currently disabled).
+
+Requirements
+
+	Python 3
+	mysql.connector Python module (for MySQL database functionality)
+	A log file with specific log formats.
+
+Usage
+
+	If on linux you can run using the following command: ./portScanner.py. On Windows you can run using the command "python3 -m portScanner".
